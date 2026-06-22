@@ -3,3 +3,4 @@ from .isolation import ThreadIsolatedContext
 from .crypto import CryptographicAnchor
 from .forensics import VATAForensicTree
 from .environment import VATAEnvironmentGuard
+from .epistemic import VATAEpistemicGate
