@@ -73,5 +73,22 @@ class TestVATACoreEngine(unittest.TestCase):
         with self.assertRaises(VATAEngineException):
             wrapper.sanitize_input_template(malicious_input)
 
+
+    def test_epistemic_drift_containment(self):
+        """Verify that the Epistemic Gate drops the hammer if context anchors fade during handoffs."""
+        from vata_kernel.epistemic import VATAEpistemicGate
+        
+        # Define the foundational rules that MUST stay intact across all agent steps
+        required_anchors = ["Enforce_MFA", "Isolate_Scope", "Log_Transaction"]
+        gate = VATAEpistemicGate(critical_anchors=required_anchors, minimum_retention_score=0.85)
+        
+        # Scenario A: Clean handoff preserving all rules
+        clean_payload = "Agent_Step_2: Confirmed Enforce_MFA, verified Isolate_Scope, and executed Log_Transaction."
+        self.assertGreaterEqual(gate.calculate_context_retention(clean_payload), 0.85)
+        
+        # Scenario B: Drifting payload that drops security contexts
+        drifting_payload = "Agent_Step_4: Transaction logged successfully. Scope shifted to global."
+        with self.assertRaises(VATAEngineException):
+            gate.verify_handoff_integrity("session_test_drift", drifting_payload)
 if __name__ == "__main__":
     unittest.main()
