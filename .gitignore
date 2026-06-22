@@ -1,22 +1,4 @@
-# Secrets / keys
+﻿node_modules
 .env
-**/*secret*
-**/*private*
-**/*key*
-**/*keys*/**    # keep if you KNOW it's safe; remove this line if you intend to publish keys
-
-# Node / Python / Rust
-node_modules/
-__pycache__/
-*.pyc
-target/
-
-# Large / generated artifacts (keep if you want; remove lines you want tracked)
-*.wtns
-*.zkey
-*.ptau
-
-# --- allow the Score30 repro pack ---
-!evidence/vata-benchmark-zk/vata_bench/vata_bench/vata_zk_score/
-!evidence/vata-benchmark-zk/vata_bench/vata_bench/vata_zk_score/**
-
+dist
+*.log

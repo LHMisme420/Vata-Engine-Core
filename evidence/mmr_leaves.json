@@ -1232,6 +1232,18 @@
     "sha256": "0xbbea7aaf0e7aa5b6ebef7a39eb7f1362e496a3a82266b0baa432f82cf771fd4c"
   },
   {
+    "path": "mmr_anchored_block_mainnet.txt",
+    "sha256": "0xa8cc43a485c482121d717c31bff9286b62141fe3a6609ca09766415757ecb305"
+  },
+  {
+    "path": "mmr_anchored_root_mainnet.txt",
+    "sha256": "0xa9eff34edf406ee79ee3dd920024e8c76b4cc5376fc1f637e2cd17c95543a251"
+  },
+  {
+    "path": "mmr_anchored_tx_mainnet.txt",
+    "sha256": "0x4ce8997b33adf3994e6b232897ba2c2aa4186d147eb640b00488f751133fd7bf"
+  },
+  {
     "path": "mmr.js",
     "sha256": "0xe668d9afe633700953911e8ef1ba9e60f4bca1a29209d02704883385f9413b89"
   },
@@ -1782,6 +1794,10 @@
   {
     "path": "verify_merkle_onchain.ps1",
     "sha256": "0x7f9b42ca28ce06afed23fc8644cddb7919a4730832ef58d4c4ea1e2248d75441"
+  },
+  {
+    "path": "verify_mmr_mainnet.ps1",
+    "sha256": "0xf5a1bdf43d0f4625adf6754e28efbe8bf968198768d712a0aa4685c62be6fcad"
   },
   {
     "path": "verify_onchain.ps1",

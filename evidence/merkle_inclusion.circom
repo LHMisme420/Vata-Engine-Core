@@ -1,42 +1,36 @@
-pragma circom 2.1.9;
-
-include "poseidon.circom";
+pragma circom 2.1.6;
+include "circomlib/circuits/poseidon.circom";
 
 template MerkleInclusion(depth) {
     signal input leaf;
-    signal input root;
-
     signal input siblings[depth];
     signal input pathIndices[depth];
+    signal input root;
 
-    signal cur[depth + 1];
-    signal diff[depth];
-    signal t[depth];
-    signal left[depth];
-    signal right[depth];
+    signal hashes[depth + 1];
+    hashes[0] <== leaf;
 
     component h[depth];
+    component mux0[depth];
+    component mux1[depth];
 
-    cur[0] <== leaf;
+    signal leftInput[depth];
+    signal rightInput[depth];
 
     for (var i = 0; i < depth; i++) {
-
-        pathIndices[i] * (pathIndices[i] - 1) === 0;
-
-        diff[i] <== siblings[i] - cur[i];
-        t[i] <== pathIndices[i] * diff[i];
-
-        left[i]  <== cur[i] + t[i];
-        right[i] <== siblings[i] - t[i];
+        // pathIndices[i] == 0 means: current is left, sibling is right
+        // pathIndices[i] == 1 means: sibling is left, current is right
+        leftInput[i] <== hashes[i] + pathIndices[i] * (siblings[i] - hashes[i]);
+        rightInput[i] <== siblings[i] + pathIndices[i] * (hashes[i] - siblings[i]);
 
         h[i] = Poseidon(2);
-        h[i].inputs[0] <== left[i];
-        h[i].inputs[1] <== right[i];
+        h[i].inputs[0] <== leftInput[i];
+        h[i].inputs[1] <== rightInput[i];
 
-        cur[i + 1] <== h[i].out;
+        hashes[i + 1] <== h[i].out;
     }
 
-    cur[depth] === root;
+    root === hashes[depth];
 }
 
-component main = MerkleInclusion(2);
+component main {public [root]} = MerkleInclusion(2);
