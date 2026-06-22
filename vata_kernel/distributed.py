@@ -17,7 +17,7 @@ class VATADistributedForensics:
         for a specific log index to propagate upstream.
         """
         if not logs or target_index >= len(logs):
-            return {"root": "", "proof": []}
+            return {"local_root": "", "proof": []}
 
         # Calculate initial leaf hashes
         leaves = [self.sha256_hash(log) for log in logs]
@@ -68,4 +68,4 @@ class VATADistributedForensics:
                 combined = sibling["hash"] + current_hash
             current_hash = hashlib.sha256(combined.encode('utf-8')).hexdigest()
             
-        return hmac_compare := (current_hash == expected_root)
+        return current_hash == expected_root
