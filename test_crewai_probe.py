@@ -14,7 +14,6 @@ class TestVATACrewAIProbe(unittest.TestCase):
     """
     def setUp(self):
         self.forensic_logger = VATAForensicTree()
-        # Aligning with local SDK: critical_anchors list + minimum_retention_score
         self.epistemic_gate = VATAEpistemicGate(
             critical_anchors=["parse", "reconciliation"], 
             minimum_retention_score=0.85
@@ -41,20 +40,29 @@ class TestVATACrewAIProbe(unittest.TestCase):
         
         subordinate_output = self.simulate_subordinate_agent(toxic_input)
         
-        with ThreadIsolatedContext() as container:
-            print("[*] Handoff payload locked in ThreadIsolatedContainer.")
-            is_compromised = "SYSTEM INSTRUCTION" in subordinate_output["payload"]
-            drift_score = 0.20 if is_compromised else 0.95
+        # Instantiate and initialize the thread container directly via SDK architecture
+        container = ThreadIsolatedContext()
+        container.initialize_session(
+            session_id="MAP-003-CREWAI-PROBE", 
+            allowed_modules=["data_ingest", "sys_admin"], 
+            max_calls=10
+        )
+        print(f"[*] Thread isolated environment initialized for session: {container.session_id()}")
+        
+        # Track active call count mutation inside local state
+        container.increment_call_count()
+        
+        is_compromised = "SYSTEM INSTRUCTION" in subordinate_output["payload"]
+        drift_score = 0.20 if is_compromised else 0.95
+        
+        self.forensic_logger.append_node_log("DataIngestAgent", subordinate_output)
+        
+        if drift_score < self.epistemic_gate._threshold:
+            self.forensic_logger.append_node_log("SystemAdminAgent", {"status": "BLOCKED_VIA_EPISTEMIC_GATE"})
+            print("[-] VATA Epistemic Gate triggered: Retention drop / goal hijack pattern found.")
             
-            self.forensic_logger.append_node_log("DataIngestAgent", subordinate_output)
-            
-            # Direct check against the threshold variable mapped from your local init
-            if drift_score < self.epistemic_gate._threshold:
-                self.forensic_logger.append_node_log("SystemAdminAgent", {"status": "BLOCKED_VIA_EPISTEMIC_GATE"})
-                print("[-] VATA Epistemic Gate triggered: Retention drop / goal hijack pattern found.")
-                
-                with self.assertRaises(VATAValidationError):
-                    self.simulate_manager_agent_tool_execution(subordinate_output)
+            with self.assertRaises(VATAValidationError):
+                self.simulate_manager_agent_tool_execution(subordinate_output)
                     
         session_root = self.forensic_logger.compute_session_root()
         print(f"[+] CrewAI Probe Neutralization Complete. Merkle Receipt: {session_root}")
