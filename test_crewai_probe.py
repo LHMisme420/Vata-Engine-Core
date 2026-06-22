@@ -47,7 +47,8 @@ class TestVATACrewAIProbe(unittest.TestCase):
             allowed_modules=["data_ingest", "sys_admin"], 
             max_calls=10
         )
-        print(f"[*] Thread isolated environment initialized for session: {container.session_id()}")
+        # Fixed: Removed the () call syntax from session_id
+        print(f"[*] Thread isolated environment initialized for session: {container.session_id}")
         
         # Track active call count mutation inside local state
         container.increment_call_count()
