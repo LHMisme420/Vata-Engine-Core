@@ -1,0 +1,9 @@
+﻿__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.git
+.gitignore
+tests/
+vata_safe_zone/
+VATA_Core_Architecture_Specification.pdf
