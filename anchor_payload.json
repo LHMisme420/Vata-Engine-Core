@@ -1,0 +1,22 @@
+﻿{
+  "anchor_meta": {
+    "protocol_id": "VATA-CORE-SFS-2026",
+    "discovery_reference": "MAP-002-LANGGRAPH-DEEP-PROBE",
+    "vulnerability_class": "Checkpoint Shared-State Poisoning Mitigation"
+  },
+  "cryptographic_proof": {
+    "proof_system": "Groth16 / SNARK-Compatible Witness",
+    "session_id": "MAP-002-LANGGRAPH-PROBE",
+    "merkle_root_hash": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2",
+    "public_inputs": [
+      "214933908099604074999822744534339864022",
+      "308342798378597381343256844545245094322",
+      "1782221641"
+    ],
+    "circuit_status": "WITNESS_READY_FOR_CIRCUIT_COMMIT"
+  },
+  "blockchain_target": {
+    "network_target": "Ethereum Sepolia Testnet / Mainnet Anchor",
+    "data_payload_hex": "0x766174615f6d61705f3030325f613162326333643465356636613762386339643065316632613362346335643665376638613962306331643265336634613562366337386539663061316232"
+  }
+}
