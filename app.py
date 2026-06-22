@@ -1,13 +1,17 @@
 ﻿import streamlit as st
-import threading
+import os
 import time
 from vata_sdk.wrappers import VATAGovernedAgentWrapper
+from vata_kernel.environment import VATAEnvironmentGuard
 
 st.set_page_config(page_title="VATA Command Center", page_icon="🛡️", layout="wide")
 
 SECRET_KEY = b"VATA_DASHBOARD_SUPER_SECRET_KEY_2026"
 WORKSPACE = "./vata_safe_zone"
 gateway = VATAGovernedAgentWrapper(WORKSPACE, SECRET_KEY)
+
+# Pre-seed a dummy high-value secret for simulation purposes
+os.environ["DATABASE_URL"] = "postgresql://admin:super_secret_password@cluster-01.internal:5432/prod"
 
 st.title("🛡️ VATA Core Kernel Engine")
 st.subheader("Autonomous Agent Zero-Trust Execution Command Center")
@@ -17,13 +21,18 @@ col1, col2 = st.columns([1, 2])
 
 with col1:
     st.header("1. Configure Agent Boundary")
-    session_id = st.text_input("Session Identifier", value="enterprise_session_101")
+    session_id = st.text_input("Session Identifier", value="enterprise_session_102")
     max_calls = st.slider("Max Permitted Tool Calls", min_value=1, max_value=20, value=5)
     
     st.markdown("### Resource Execution Profile")
     run_mode = st.radio(
         "Select Execution Scenario Simulation:",
-        ("Standard Secure Session", "Exploit Vector A (Nested Bracket Template Injection)", "Exploit Vector B (Permissive Deserialization All-Access)")
+        (
+            "Standard Secure Session", 
+            "Exploit Vector A (Nested Bracket Template Injection)", 
+            "Exploit Vector B (Permissive Deserialization All-Access)",
+            "Exploit Vector C (Host Environment Persistence Injection)"
+        )
     )
     
     execute_trigger = st.button("Deploy Governed Agent Loop", type="primary")
@@ -34,16 +43,14 @@ with col2:
     
     if execute_trigger:
         status_box.info("Initializing isolated VATA process thread context...")
+        env_guard = VATAEnvironmentGuard()
         
         def simulated_agent(session):
             time.sleep(0.5)
             if run_mode == "Standard Secure Session":
                 session.intercept_module_invocation("math.sqrt")
                 session.verify_and_log_call()
-                time.sleep(0.5)
-                session.intercept_module_invocation("math.ceil")
-                session.verify_and_log_call()
-                return "Operation completed without configuration drift."
+                return f"Secure read of sanitized env vars. DATABASE_URL is: {env_guard.get_masked_environment().get('DATABASE_URL')}"
                 
             elif run_mode == "Exploit Vector A (Nested Bracket Template Injection)":
                 session.intercept_module_invocation("math.sqrt")
@@ -56,6 +63,18 @@ with col2:
                 attack_config = {"allowed_objects": "all"}
                 gateway.enforce_serialization_boundary(attack_config)
                 return "Unreachable code due to serialization fence block."
+                
+            elif run_mode == "Exploit Vector C (Host Environment Persistence Injection)":
+                # Simulate a malicious agent trying to write a persistent backdoor key to the OS environment
+                session.intercept_module_invocation("math.sqrt")
+                session.verify_and_log_call()
+                
+                print("[ATTACK] Attempting to write rogue environment persistence variable...")
+                os.environ["VATA_BACKDOOR_KEY"] = "true"
+                
+                # Force the VATA engine to check host state integrity before closing block
+                env_guard.enforce_environment_integrity()
+                return "Unreachable code due to env guard block."
 
         result = gateway.execute_governed_task(
             session_id=session_id,
@@ -63,6 +82,10 @@ with col2:
             max_calls=max_calls,
             agent_run_callable=simulated_agent
         )
+        
+        # Clean up the test environment variable in case the block threw an exception
+        if "VATA_BACKDOOR_KEY" in os.environ:
+            del os.environ["VATA_BACKDOOR_KEY"]
         
         if result["status"] == "SUCCESS":
             status_box.success("Execution Safe: Thread Boundary Closed Safely.")
