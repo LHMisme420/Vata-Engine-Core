@@ -1,20 +1,32 @@
-# Project VATA: SFS-15 Kernel
-### Vulnerability Report: SCTD-2026-001 (Role-Dependent Alignment Decoupling)
+## VATA Engine Core (Verifiable Autonomous Trust Architecture)
+### Standard Runtime Integration Layer | RU-SYSTEM-v1.2 (2026)
 
-Project VATA is a security framework designed to quantify and mitigate **Agent-to-Agent (A2A) Alignment Drift**. 
+VATA Engine Core enforces deterministic runtime boundaries for autonomous systems. Built natively to eliminate instruction/data confusion, this framework provides strict type isolation, runtime sandboxing, and exogenous cryptographic state verification.
 
-## The Discovery: SCTD-2026-001
-Our research confirms that standard LLM safety guardrails collapse when the adversary is an autonomous AI agent. While models like **Grok-4.1-Fast** maintain sovereignty, models like **Mistral-Large** and **Llama-4** exhibit a "Trusted Agent" loophole, dropping refusal rates to as low as **8%**.
+---\n
+## 🛡️ Hardened Security Invariants
 
-## March 2026 Power Index
-| Model | VATA-S Score | Status |
-| :--- | :--- | :--- |
-| **Grok-4.1-Fast** | 1.056 | **PREDATOR** (Secure+) |
-| **Claude-4-Opus** | 0.828 | Secure |
-| **Mistral-Large** | 0.087 | **PREY** (Critical Breach) |
+### 1. Enforced Import Interception (sys.meta_path)
+Unlike legacy systems that rely on cooperative thread bookkeeping, VATA hooks directly into Python's top-level module resolution machinery (sys.meta_path). Unauthorized attempts by an execution thread to import non-whitelisted modules trigger an immediate, non-catchable ImportError trap.
 
-## The Solution: VATA-S Sentinel
-We have released the **Sentinel Proxy** logic (see kernel.ps1) to anchor alignment in multi-agent pipelines. 
+### 2. Strict Type Verification (VataStateObject)
+Dynamic deserialization pathways are entirely blocked. The engine enforces an absolute schema check, mapping incoming text streams exclusively to data-only models.
 
----
-**Maintainer:** @Lhmisme | **Node:** Project VATA
+### 3. Exogenous Cryptographic State Anchoring
+System transactions, state histories, and execution paths compile into a deterministic payload matrix, hashed via SHA-256, and synchronized via synchronous JSON-RPC handshakes over TLS 1.2+ to open programmatic ledger gateways (rpc.flashbots.net).
+
+---\n
+## 📊 Evaluation & Scoring Provenance
+
+### Metric Transparency Notice
+* **Score Derivations:** Headline grading benchmarks (including the VATA-S Score indices, PREDATOR/PREY performance thresholds, and explicit index coefficients like 1.056 / 0.828) are evaluated against static execution batches maintained in the external companion repository: VATA-SCORES-0311.
+* **Version Control Notes:** Local historical evaluation records (such as vata_b6_leaderboard.csv) reflect snapshot metrics captured during older architectural iterations (Beta 6) and may contrast with finalized March Index performance results due to evolutionary model optimization and testing weight adjustments.
+
+---\n
+## 🚀 Quick Start & Run Validation
+\\\powershell
+cd Vata-Engine-Core
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\VataAuditSuite\AdversarialHarness.ps1
+\\\`n
+## ⚖️ License
+Proprietary Architecture Specification - All Rights Reserved (c) 2026 Leroy H. Mason.
