@@ -26,15 +26,12 @@ class VataNetworkClient {
     }
 
     hidden [PSCustomObject] SendRpcRequest([string]$Method, [string]$RawParamsJson) {
-        # Fix: Enforce a clean, non-scientific integer format string for the RPC transaction ID
         $IdString = (Get-Random -Minimum 10000 -Maximum 99999).ToString()
         $Body = '{"jsonrpc":"2.0","method":"' + $Method + '","params":' + $RawParamsJson + ',"id":' + $IdString + '}'
-
         $Headers = @{ 
             "Content-Type" = "application/json"
             "User-Agent"   = "Mozilla/5.0"
         }
-        
         try {
             $Response = Invoke-RestMethod -Uri $this.RpcUrl -Method Post -Headers $Headers -Body $Body
             if ($null -ne $Response.error) {
@@ -73,5 +70,21 @@ class VataEngine {
                 $this.MaskedEnvironment[$Key] = $RealEnv[$Key]
             }
         }
+    }
+
+    [VataStateObject] AssertTypeSafety([Object]$IncomingData) {
+        if ($null -eq $IncomingData -or $IncomingData.GetType().Name -ne "PSCustomObject" -or $IncomingData.VataType -ne "VataStateObject") {
+            throw "VATA_CRITICAL_FAULT: Type degradation detected. Engine fallback rejected."
+        }
+        return [VataStateObject]::new($IncomingData.TaskId, $IncomingData.Payload)
+    }
+
+    [string] AssertFileReadBoundary([string]$RelativePath) {
+        $CombinedPath = Join-Path $this.SandboxRoot $RelativePath
+        $ResolvedTarget = [System.IO.Path]::GetFullPath($CombinedPath).ToLower()
+        if (-not $ResolvedTarget.StartsWith($this.SandboxRoot)) {
+            throw "VATA_CRITICAL_FAULT: Sandbox containment breach attempted via path traversal."
+        }
+        return "SECURE_READ_VALIDATED"
     }
 }
